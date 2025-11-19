@@ -16,5 +16,17 @@
     "basic": 300000,
     "otAmount": 1000,
     "fullSalary": 301000
+  },
+  {
+    "name": "isuru",
+    "basic": 30000,
+    "otAmount": 6780,
+    "fullSalary": 36780
+  },
+  {
+    "name": "Sadaru",
+    "basic": 20000,
+    "otAmount": 2000,
+    "fullSalary": 22000
   }
 ]
