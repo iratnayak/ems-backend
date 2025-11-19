@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Isuru",
+    "basic": 100000,
+    "otAmount": 10000,
+    "fullSalary": 110000
+  },
+  {
+    "name": "Shakoor",
+    "basic": 150000,
+    "otAmount": 10000,
+    "fullSalary": 160000
+  },
+  {
+    "name": "Isuru",
+    "basic": 300000,
+    "otAmount": 1000,
+    "fullSalary": 301000
+  }
+]
