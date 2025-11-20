@@ -2,31 +2,17 @@
   {
     "name": "Isuru",
     "basic": 100000,
-    "otAmount": 10000,
-    "fullSalary": 110000
+    "otHours": 10,
+    "otRate": 100,
+    "otAmount": 1000,
+    "fullSalary": 101000
   },
   {
     "name": "Shakoor",
-    "basic": 150000,
-    "otAmount": 10000,
-    "fullSalary": 160000
-  },
-  {
-    "name": "Isuru",
-    "basic": 300000,
-    "otAmount": 1000,
-    "fullSalary": 301000
-  },
-  {
-    "name": "isuru",
-    "basic": 30000,
-    "otAmount": 6780,
-    "fullSalary": 36780
-  },
-  {
-    "name": "Sadaru",
-    "basic": 20000,
-    "otAmount": 2000,
-    "fullSalary": 22000
+    "basic": 200000,
+    "otHours": 10,
+    "otRate": 300,
+    "otAmount": 3000,
+    "fullSalary": 203000
   }
 ]
