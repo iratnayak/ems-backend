@@ -14,5 +14,11 @@
     "otRate": 300,
     "otAmount": 3000,
     "fullSalary": 203000
+  },
+  {
+    "name": "Mohomad",
+    "basic": 300000,
+    "otAmount": 12000,
+    "fullSalary": 312000
   }
 ]

@@ -1,116 +1,95 @@
 const express = require("express");
 const cors = require("cors");
-const fs = require("fs");
-const { error } = require("console");
+const { error, timeStamp } = require("console");
+const mongoose = require("mongoose");
+
 
 const app = express();
+
+// MongoDB Connection Username - ems_user , Password - Isuru2025
+const MONGO_URI =
+"mongodb+srv://ems_user:Isuru2025@cluster0.bzpokzw.mongodb.net/?appName=Cluster0";
+
+mongoose
+.connect(MONGO_URI)
+.then(() => console.log("MongoDB Connected!"))
+.catch((err) => console.error("MongoDB Error!", err));
+
+
+// Employees Schema
+const employeeSchema = new mongoose.Schema(
+  {
+    name: String,
+    basic: Number,
+    otHours: Number,
+    otRate: Number,
+    otAmount: Number,
+    fullSalary: Number,
+  },
+  {timeStamp: true}
+);
+const Employee = mongoose.model("Employee", employeeSchema);
 
 // Allow Json Body and CORS
 app.use(cors());
 app.use(express.json());
 
-// Get Employee and -> Return all Employee
-app.get("/employees", (req, res) => {
-  console.log("GET /employees called");  
-  fs.readFile("employees.json", "utf8", (err, data) => {
-    if (err) {
-      console.error("Read error:", err);
-      return res.status(500).json({ error: "Error reading database" });
-    }
-    const employees = JSON.parse(data);
+// Get all employees (from MongoDB)
+app.get("/employees", async (req, res) => {
+  console.log("GET /employees called");
+  try {
+    const employees = await Employee.find().sort({ createdAt: 1 });
     res.json(employees);
-  });
+  } catch (err) {
+    console.error("GET Error:", err);
+    res.status(500).json({ error: "Error reading database" });
+  }
 });
 
-// POST Employee -> Add New Employee
-app.post("/employees", (req, res) => {
-  const newEmp = req.body; // { name, basic, otAmount, fullSalary }
-  fs.readFile("employees.json", "utf-8", (err, data) => {
-    let employees = [];
+// Add new employee (MongoDB)
+app.post("/employees", async (req, res) => {
+  try {
+    const emp = new Employee(req.body);
+    const saved = await emp.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    console.error("POST Error:", err);
+    res.status(500).json({ error: "Error saving employee" });
+  }
+});
 
-    if(!err && data) {
-      employees = JSON.parse(data);
-    }
-    employees.push(newEmp);
-
-    fs.writeFile("employees.json", JSON.stringify(employees, null, 2), (err2) => {
-      if (err2) {
-        console.error("Write error: ", err2);
-        return res.status(500).json({ error: "Error Saving Employee"});
-      }
-      res.json({ message: "Employee Added! ", employees});
+// Update employee (MongoDB)
+app.put("/employees/:id", async (req, res) => {
+  const {id} = req.params;
+  try {
+    const updated = await Employee.findByIdAndUpdate(id, req.body, {
+      new: true,
     });
-  });
+    if (!updated) {
+      return res.status(404).json({error: "Employee not found!"});
+    }
+    res.json(updated);
+  } catch (err) {
+    console.error("PUT Error:", err);
+    res.status(500).json({ error:"Error updating employee!"});
+  }
 });
 
-// Update Employee Details
-app.put("/employees/:index", (req, res) => {
-  const index = parseInt(req.params.index, 10);
-  const updatedEmp = req.body;
-
-  fs.readFile("employees.json", "utf-8", (err, data) => {
-    if (err) {
-      console.error("Read Error:", err);
-      return res.status(500).json({ error: "Error Reading Database"});
+// Delete employee (MongoDB)
+app.delete("/employees/:id", async (req, res) => {
+  const {id} = req.params;
+  try {
+    const deleted = await Employee.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Employee not found!"});
     }
-    let employees = [];
-    if (data){
-      employees = JSON.parse(data);
-    }
-    if (isNaN(index)|| index<0 || index >= employees.length) {
-      return res.status(400).json({ error: "Invalid index"});
-    }
-    employees[index] = updatedEmp;
-
-    fs.writeFile(
-      "employees.json",
-      JSON.stringify(employees, null, 2),
-      (err2) => {
-        if (err2){
-          console.error("Write Error", err2);
-          return res
-          .status(500)
-          .json({ error: "Error saving updated employee"});
-        }
-        res.json({message: "Employee Updated", employees});
-      }
-    );
-  });
+    res.json({ message: "Employee deleted!"});
+  } catch (err) {
+    console.error("DELETE Error:", err);
+    res.status(500).json({ error: "Error deleting employee!"})
+  }
 });
 
-// Delete Employee -> Delete Employee Details
-app.delete("/employees/:index", (req, res) => {
-  const index = parseInt(req.params.index,10);
-
-  fs.readFile("employees.json", "utf-8", (err, data) => {
-    if(err) {
-      console.error("Read Error: ", err);
-      return res.status(500).json({ error: "Error reading database"});
-    }
-    let employees = [];
-    if (data){
-      employees = JSON.parse(data);
-    }
-    if (isNaN(index) || index < 0 || index >= employees.length) {
-      return res.status(400).json({ error: "Invalid Index"});
-    }
-
-    employees.splice(index,1);
-    fs.writeFile(
-      "employees.json",
-      JSON.stringify(employees, null, 2),
-      (err2) => {
-        if (err2) {
-          console.error("Write error:", err2);
-          return res
-            .status(500)
-            .json({ error: "Error saving employee after delete" });
-        }
-        res.json({ message: "Employee deleted", employees });
-      }
-    );
-  });
-});
 // Start Server
 app.listen(5001, () => {
   console.log("🚀 Backend server started on http://localhost:5001");
