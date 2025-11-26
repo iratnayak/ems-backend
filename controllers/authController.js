@@ -7,7 +7,12 @@ exports.register = async (req, res) => {
   try {
     const { username, password, role } = req.body;
     
-    // Password convert to encrypt 
+    // Check if user exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+        return res.status(400).json({ error: "Username already exists" });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -16,6 +21,7 @@ exports.register = async (req, res) => {
 
     res.status(201).json({ message: "User Created Successfully!" });
   } catch (err) {
+    console.error("Register Error:", err); 
     res.status(500).json({ error: "User registration failed" });
   }
 };
